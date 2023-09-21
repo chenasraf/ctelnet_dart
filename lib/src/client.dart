@@ -18,6 +18,7 @@ abstract class ITelnetClient {
 }
 
 class CTelnetClient implements ITelnetClient {
+
   CTelnetClient({
     required this.host,
     required this.port,
@@ -51,6 +52,8 @@ class CTelnetClient implements ITelnetClient {
 
   late RawSocket _socket;
 
+  late ConnectionTask<RawSocket> _task;
+
   bool _isConnected = false;
 
   StreamSubscription<RawSocketEvent>? _subscription;
@@ -60,6 +63,7 @@ class CTelnetClient implements ITelnetClient {
   Future<void> connect() async {
     try {
       final task = await RawSocket.startConnect(host, port);
+      _task = task;
       _socket = await task.socket;
       _subscription = _socket.listen(
         _onData,
@@ -68,6 +72,14 @@ class CTelnetClient implements ITelnetClient {
       );
     } catch (e) {
       onError(e.toString());
+    }
+  }
+
+  Future<void> startTimeout() async {
+    await Future.delayed(timeout);
+    if (!_isConnected) {
+      _dispose();
+      _onError(TimeoutException('Timeout for connection to $host:$port exceeded', timeout), StackTrace.current);
     }
   }
 
@@ -99,6 +111,12 @@ class CTelnetClient implements ITelnetClient {
   void _onDone() {
     onDisconnect();
     _subscription?.cancel();
+    _task.cancel();
+  }
+
+  void _dispose() {
+  _subscription?.cancel();
+  _task.cancel();
   }
 
   @override

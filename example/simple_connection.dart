@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:ctelnet/ctelnet.dart';
 
-void main(List<String> args) async {
-  final host = String.fromEnvironment('HOST', defaultValue: 'localhost');
-  final port = int.tryParse(String.fromEnvironment('PORT', defaultValue: '23')) ?? 23;
+var env = Platform.environment;
+final host = env['HOST'] ?? 'localhost';
+final port = int.parse(env['PORT'] ?? '23');
 
+void main(List<String> args) async {
   print('Connecting to $host:$port');
 
   final client = CTelnetClient(
@@ -20,6 +23,6 @@ void main(List<String> args) async {
 
   client.send('Hello, world!');
 
-  // await client.disconnect();
+  await client.disconnect();
 }
 
