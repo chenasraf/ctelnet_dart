@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'message.dart';
 import 'typedefs.dart';
 
 export './typedefs.dart';
@@ -18,7 +19,6 @@ abstract class ITelnetClient {
 }
 
 class CTelnetClient implements ITelnetClient {
-
   CTelnetClient({
     required this.host,
     required this.port,
@@ -48,7 +48,7 @@ class CTelnetClient implements ITelnetClient {
   final DataCallback onData;
 
   /// The callback to call when an error occurs.
-  final DataCallback onError;
+  final ErrorCallback onError;
 
   late RawSocket _socket;
 
@@ -92,7 +92,9 @@ class CTelnetClient implements ITelnetClient {
       case RawSocketEvent.read:
         final data = _socket.read();
         if (data != null) {
-          onData(String.fromCharCodes(data));
+          final msg = StringMessage.fromBytes(data);
+          print('Received: $msg');
+          onData(msg);
         }
         break;
       case RawSocketEvent.write:
@@ -115,8 +117,8 @@ class CTelnetClient implements ITelnetClient {
   }
 
   void _dispose() {
-  _subscription?.cancel();
-  _task.cancel();
+    _subscription?.cancel();
+    _task.cancel();
   }
 
   @override

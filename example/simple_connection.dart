@@ -15,7 +15,12 @@ void main(List<String> args) async {
     timeout: Duration(seconds: 30),
     onConnect: () => print('Connected'),
     onDisconnect: () => print('Disconnected'),
-    onData: (data) => print('Data: $data'),
+    onData: (data) {
+      print('DBG:        ${data.toDebugString()}');
+      print('toString(): ${data.toString()}');
+      print('.text:      ${data.text}');
+      print('');
+    },
     onError: (error) => print('Error: $error'),
   );
 
@@ -23,6 +28,6 @@ void main(List<String> args) async {
 
   client.send('Hello, world!');
 
-  await client.disconnect();
+  // await client.disconnect();
 }
 
