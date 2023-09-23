@@ -14,6 +14,9 @@ abstract class ITelnetClient {
   /// Send data to the server.
   int send(String data);
 
+  /// Send bytes to the server.
+  int sendBytes(List<int> bytes);
+
   /// Disconnect from the server.
   Future<RawSocket> disconnect();
 }
@@ -124,6 +127,11 @@ class CTelnetClient implements ITelnetClient {
   @override
   int send(String data) {
     return _socket.write(Uint8List.fromList(data.codeUnits));
+  }
+
+  @override
+  int sendBytes(List<int> bytes) {
+    return _socket.write(Uint8List.fromList(bytes));
   }
 
   @override

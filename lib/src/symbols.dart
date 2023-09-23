@@ -1,52 +1,52 @@
 class Symbols {
   // ASCII control characters
 
-  /// IAC - Interpret as Command
+  /// IAC - Interpret as Command - 255
   static const int iac = 0xff;
 
-  /// SE - Subnegotiation End
+  /// SE - Subnegotiation End - 240
   static const int se = 0xf0;
 
-  /// NOP - No Operation
+  /// NOP - No Operation - 241
   static const int nop = 0xf1;
 
-  /// DM - Data Mark
+  /// DM - Data Mark - 242
   static const int dm = 0xf2;
 
-  /// BRK - Break
+  /// BRK - Break - 243
   static const int brk = 0xf3;
 
-  /// IP - Interrupt Process
+  /// IP - Interrupt Process - 244
   static const int ip = 0xf4;
 
-  /// AO - Abort Output
+  /// AO - Abort Output - 245
   static const int ao = 0xf5;
 
-  /// AYT - Are You There
+  /// AYT - Are You There - 246
   static const int ayt = 0xf6;
 
-  /// EC - Erase Character
+  /// EC - Erase Character - 247
   static const int ec = 0xf7;
 
-  /// EL - Erase Line
+  /// EL - Erase Line - 248
   static const int el = 0xf8;
 
-  /// GA - Go Ahead
+  /// GA - Go Ahead - 249
   static const int ga = 0xf9;
 
-  /// SB - Subnegotiation Begin
+  /// SB - Subnegotiation Begin - 250
   static const int sb = 0xfa;
 
-  /// WILL (option code)
+  /// WILL (option code) - 251
   static const int will = 0xfb;
 
-  /// WONT (option code)
+  /// WONT (option code) - 252
   static const int wont = 0xfc;
 
-  /// DO (option code)
+  /// DO (option code) - 253
   static const int doo = 0xfd;
 
-  /// DONT (option code)
+  /// DONT (option code) - 254
   static const int dont = 0xfe;
 }
 
