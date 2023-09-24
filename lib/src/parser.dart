@@ -1,10 +1,11 @@
 import 'symbols.dart';
 
 class MessageData {
+  final List<int> bytes;
   final String text;
-  final List<List<int>> subnegotiations;
+  final List<List<int>> commands;
 
-  MessageData(this.text, this.subnegotiations);
+  MessageData(this.bytes, this.text, this.commands);
 }
 
 class Reader {
@@ -36,10 +37,10 @@ class Reader {
 }
 
 class MessageParser {
-  final List<int> buffer;
+  final List<int> bytes;
   final Reader reader;
 
-  MessageParser(this.buffer) : reader = Reader(buffer);
+  MessageParser(this.bytes) : reader = Reader(bytes);
 
   MessageData parse() {
     final text = StringBuffer();
@@ -59,7 +60,7 @@ class MessageParser {
           Symbols.doo,
           Symbols.dont,
         ];
-        
+
         if (nextByte == null) {
           break;
         }
@@ -78,7 +79,7 @@ class MessageParser {
         text.writeCharCode(byte);
       }
     }
-    return MessageData(text.toString(), subnegotiations);
+    return MessageData(bytes, text.toString(), subnegotiations);
   }
 }
 
