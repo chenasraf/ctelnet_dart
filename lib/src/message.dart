@@ -59,7 +59,7 @@ class Message {
   }
 
   String toDebugString() {
-    return '${commands.map((e) => e.map((x) => symbolMap[x] ?? x)).join(' ')}${LF}n$text';
+    return '${commands.map((e) => e.map((x) => symbolMap[x] ?? x)).join(' ')}${lf}n$text';
   }
 
   int get firstLiteralByteIndex {

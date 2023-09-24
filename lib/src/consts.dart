@@ -1,1 +1,1 @@
-const LF = '\n';
+const lf = '\n';
