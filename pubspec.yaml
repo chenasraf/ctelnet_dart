@@ -1,6 +1,6 @@
 name: ctelnet
 description: Telnet client for Dart/Flutter
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/chenastaf/ctelnet_dart
 
 environment:
