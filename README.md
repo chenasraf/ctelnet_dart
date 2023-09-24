@@ -1,39 +1,118 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# CTelnet
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+This package is a telnet client implementation in dart. You can connect to a telnet server, and get
+and send data in a simple interface.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Parses data for easy querying
+- Supports sending & receiving options and subnegotiations
+- Works in plain Dart or Flutter environments
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+There are no prerequisites to using this package. Simply add it to your pubspec, and import the
+client to be used.
+
+```sh
+dart pub add ctelnet
+# or
+flutter pub add ctelnet
+```
+
+All you normally need to import is in the main `ctelnet.dart` file:
+
+```dart
+import 'package:ctelnet/ctelnet.dart'
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+### Connecting to a server
+
+Just use `CTelnetClient` to connect. You first initialize it, then connect when you are ready.
 
 ```dart
-const like = 'sample';
+Future<void> connect(String host, int port) {
+  print('Connecting to $host:$port');
+
+  final client = CTelnetClient(
+    host: host,
+    port: port,
+    timeout: Duration(seconds: 30),
+    onConnect: () => print('Connected'),
+    onDisconnect: () => print('Disconnected'),
+    onData: (data) => print('Data received: ${data.text}'),
+    onError: (error) => print('Error: $error'),
+  );
+
+  await client.connect();
+}
 ```
 
-## Additional information
+### Sending data to server
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+To send data to the server, you can use the `send` and `sendBytes` methods on the client.
+
+The method `send` will let you send any plaintext, which should be fine for most cases, but you may
+send any raw information using `sendBytes` and supplying a byte array.
+
+There are also built-in methods for sending commands to the telnet server, such as the `will`,
+`wont`, `doo` and `dont` methods for handling telnet options.
+
+```dart
+const MCCP2 = 86;
+
+void sendExamples() {
+  // Send a string
+  client.send('Hello, world');
+
+  // Send raw bytes
+  client.sendBytes([Symbols.iac, Symbols.sb] + 'Hello, world!'.codeUnits);
+
+  // Send commands
+  client.doo(MCCP2);
+}
+```
+
+You can see more methods in the documentation for the `CTelnetClient` object.
+
+### Receiving data from server
+
+You can also use parsed or raw information for received `Message` objects.
+
+```dart
+const MCCP2 = 86;
+bool isEncrypted = false;
+
+void handleMessage(Message msg) {
+  if (msg.will(MCCP2)) {
+    client.doo(MCCP2)
+  }
+
+  if (msg.sb(MCCP2)) {
+    isEncrypted = true;
+    msg = Message(decode(msg.bytes));
+  }
+
+  print('The plaintext portion of the message is: ${msg.text}');
+  print('The attached commands are: ${msg.commands}');
+}
+```
+
+You can see more methods in the documentation for the `Message` object.
+
+## Contributing
+
+I am developing this package on my free time, so any support, whether code, issues, or just stars is
+very helpful to sustaining its life. If you are feeling incredibly generous and would like to donate
+just a small amount to help sustain this project, I would be very very thankful!
+
+<a href='https://ko-fi.com/casraf' target='_blank'>
+  <img height='36' style='border:0px;height:36px;'
+    src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
+    alt='Buy Me a Coffee at ko-fi.com' />
+</a>
+
+I welcome any issues or pull requests on GitHub. If you find a bug, or would like a new feature,
+don't hesitate to open an appropriate issue and I will do my best to reply promptly.

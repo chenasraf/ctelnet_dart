@@ -28,6 +28,10 @@ void main(List<String> args) async {
 
   client.send('Hello, world!');
 
+  // ignore: constant_identifier_names
+  const MCCP2 = 86;
+  client.doo(MCCP2);
+
   // await client.disconnect();
 }
 
