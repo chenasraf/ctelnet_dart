@@ -82,4 +82,3 @@ class MessageParser {
     return MessageData(bytes, text.toString(), subnegotiations);
   }
 }
-

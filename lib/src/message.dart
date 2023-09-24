@@ -14,27 +14,32 @@ class Message {
   }
 
   /// Returns true if the message contains the given WILL command
-  bool will(int option) => commands.any((element) => element[0] == Symbols.will && element[1] == option);
+  bool will(int option) => commands
+      .any((element) => element[0] == Symbols.will && element[1] == option);
 
   /// Returns true if the message contains the given WONT command
-  bool wont(int option) => commands.any((element) => element[0] == Symbols.wont && element[1] == option);
+  bool wont(int option) => commands
+      .any((element) => element[0] == Symbols.wont && element[1] == option);
 
   /// Returns true if the message contains the given DO command
-  bool doo(int option) => commands.any((element) => element[0] == Symbols.doo && element[1] == option);
+  bool doo(int option) => commands
+      .any((element) => element[0] == Symbols.doo && element[1] == option);
 
   /// Returns true if the message contains the given DONT command
-  bool dont(int option) => commands.any((element) => element[0] == Symbols.dont && element[1] == option);
+  bool dont(int option) => commands
+      .any((element) => element[0] == Symbols.dont && element[1] == option);
 
   /// Returns true if the message starts the subnegotiation (with optional value)
-  bool sb([int? option]) =>
-      commands.any((element) => element[0] == Symbols.sb && (option == null || element[1] == option));
+  bool sb([int? option]) => commands.any((element) =>
+      element[0] == Symbols.sb && (option == null || element[1] == option));
 
   /// Returns true if the message ends the subnegotiation
   bool se() => commands.any((element) => element[0] == Symbols.se);
 
   /// Returns the subnegotiation data for the given option
   List<int> subnegotiation(int option) {
-    final subnegotiations = commands.where((element) => element[0] == Symbols.sb && element[1] == option);
+    final subnegotiations = commands
+        .where((element) => element[0] == Symbols.sb && element[1] == option);
     if (subnegotiations.isEmpty) {
       return [];
     }
@@ -66,7 +71,8 @@ class Message {
     if (bytes.isEmpty) {
       return 0;
     }
-    final commandsByteCount = commands.fold<int>(0, (previousValue, element) => previousValue + element.length);
+    final commandsByteCount = commands.fold<int>(
+        0, (previousValue, element) => previousValue + element.length);
     return commandsByteCount;
   }
 
@@ -81,4 +87,3 @@ class Message {
     return false;
   }
 }
-

@@ -69,7 +69,7 @@ const symbolMap = {
   Symbols.dont: 'DONT',
 };
 
-const reverseSymbolMap ={
+const reverseSymbolMap = {
   'IAC': Symbols.iac,
   'SE': Symbols.se,
   'NOP': Symbols.nop,
@@ -87,4 +87,3 @@ const reverseSymbolMap ={
   'DO': Symbols.doo,
   'DONT': Symbols.dont,
 };
-

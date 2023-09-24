@@ -112,7 +112,8 @@ class CTelnetClient implements ITelnetClient {
 
   @override
   subnegotiate(int option, List<int> data) {
-    sendBytes([Symbols.iac, Symbols.sb, option, ...data, Symbols.iac, Symbols.se]);
+    sendBytes(
+        [Symbols.iac, Symbols.sb, option, ...data, Symbols.iac, Symbols.se]);
   }
 
   @override
@@ -139,7 +140,10 @@ class CTelnetClient implements ITelnetClient {
     await Future.delayed(timeout);
     if (!_isConnected) {
       _dispose();
-      _onError(TimeoutException('Timeout for connection to $host:$port exceeded', timeout), StackTrace.current);
+      _onError(
+          TimeoutException(
+              'Timeout for connection to $host:$port exceeded', timeout),
+          StackTrace.current);
     }
   }
 
@@ -181,4 +185,3 @@ class CTelnetClient implements ITelnetClient {
     _task.cancel();
   }
 }
-
