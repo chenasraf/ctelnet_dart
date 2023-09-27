@@ -157,7 +157,6 @@ class CTelnetClient implements ITelnetClient {
         final data = _socket.read();
         if (data != null) {
           final msg = Message(data);
-          print('Received: ${msg.bytes}');
           onData(msg);
         }
         break;

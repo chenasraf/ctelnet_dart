@@ -92,7 +92,7 @@ void handleMessage(Message msg) {
 
   if (msg.sb(MCCP2)) {
     isEncrypted = true;
-    msg = Message(decode(msg.bytes));
+    /// proceed to process data
   }
 
   print('The plaintext portion of the message is: ${msg.text}');

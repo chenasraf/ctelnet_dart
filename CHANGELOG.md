@@ -1,3 +1,7 @@
+## 0.1.3
+
+- Remove unnecessary print
+
 ## 0.1.2
 
 - Fix example file and repository URL
