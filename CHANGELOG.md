@@ -1,3 +1,7 @@
+## 0.1.4
+
+- Add connection state properties
+
 ## 0.1.3
 
 - Remove unnecessary print

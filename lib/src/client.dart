@@ -9,6 +9,9 @@ import 'typedefs.dart';
 export './typedefs.dart';
 
 abstract class ITelnetClient {
+  /// The connection status of the client.
+  ConnectionStatus status = ConnectionStatus.disconnected;
+
   /// Connect to the server.
   Future<void> connect();
 
@@ -48,32 +51,18 @@ class CTelnetClient implements ITelnetClient {
     required this.onError,
   });
 
-  /// The host to connect to.
   final String host;
-
-  /// The port to connect to.
   final int port;
-
-  /// The timeout for the connection.
   final Duration timeout;
-
-  /// The callback to call when the connection is established.
   final ConnectionCallback onConnect;
-
-  /// The callback to call when the connection is closed.
   final ConnectionCallback onDisconnect;
-
-  /// The callback to call when data is received.
   final DataCallback onData;
-
-  /// The callback to call when an error occurs.
   final ErrorCallback onError;
-
   late RawSocket _socket;
-
   late ConnectionTask<RawSocket> _task;
-
-  bool _isConnected = false;
+  @override
+  ConnectionStatus status = ConnectionStatus.disconnected;
+  bool get connected => status == ConnectionStatus.connected;
 
   StreamSubscription<RawSocketEvent>? _subscription;
 
@@ -81,6 +70,7 @@ class CTelnetClient implements ITelnetClient {
   @override
   Future<void> connect() async {
     try {
+      status = ConnectionStatus.connecting;
       final task = await RawSocket.startConnect(host, port);
       _task = task;
       _startTimeout();
@@ -138,7 +128,7 @@ class CTelnetClient implements ITelnetClient {
 
   Future<void> _startTimeout() async {
     await Future.delayed(timeout);
-    if (!_isConnected) {
+    if (!connected) {
       _dispose();
       _onError(
           TimeoutException(
@@ -148,8 +138,8 @@ class CTelnetClient implements ITelnetClient {
   }
 
   void _onData(RawSocketEvent event) {
-    if (!_isConnected) {
-      _isConnected = true;
+    if (!connected) {
+      status = ConnectionStatus.connected;
       onConnect();
     }
     switch (event) {
@@ -174,6 +164,7 @@ class CTelnetClient implements ITelnetClient {
   }
 
   void _onDone() {
+    status = ConnectionStatus.disconnected;
     onDisconnect();
     _subscription?.cancel();
     _task.cancel();
@@ -184,3 +175,15 @@ class CTelnetClient implements ITelnetClient {
     _task.cancel();
   }
 }
+
+enum ConnectionStatus {
+  /// The client is in the process of connecting to the server.
+  connecting,
+
+  /// The client is connected to the server and ready to send and receive data.
+  connected,
+
+  /// The client is not connected to the server.
+  disconnected,
+}
+
