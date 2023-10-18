@@ -48,6 +48,30 @@ class Symbols {
 
   /// DONT (option code) - 254
   static const int dont = 0xfe;
+
+  /// IS - Subnegotiation Is - 0
+  static const int iss = 0;
+
+  /// SEND - Subnegotiation Send - 1
+  static const int send = 1;
+
+  /// INFO - Subnegotiation Info - 2
+  static const int info = 2;
+
+  /// VAR - Subnegotiation Var - 0
+  static const int varr = 0;
+
+  /// VALUE - Subnegotiation Value - 1
+  static const int value = 1;
+
+  /// TERMINAL TYPE - Subnegotiation Terminal Type - 24
+  static const int terminalType = 24;
+
+  /// COMPRESSION - Subnegotiation Compression - 85
+  static const int compression = 85;
+
+  /// COMPRESSION2 - Subnegotiation Compression2 - 86
+  static const int compression2 = 86;
 }
 
 const symbolMap = {
@@ -87,3 +111,4 @@ const reverseSymbolMap = {
   'DO': Symbols.doo,
   'DONT': Symbols.dont,
 };
+

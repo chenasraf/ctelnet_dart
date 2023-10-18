@@ -25,19 +25,19 @@ abstract class ITelnetClient {
   Future<RawSocket> disconnect();
 
   /// Send a WILL command to the server.
-  will(int option);
+  void will(int option);
 
   /// Send a WONT command to the server.
-  wont(int option);
+  void wont(int option);
 
   /// Send a DO command to the server.
-  doo(int option);
+  void doo(int option);
 
   /// Send a DONT command to the server.
-  dont(int option);
+  void dont(int option);
 
   /// Send a subnegotiation to the server.
-  subnegotiate(int option, List<int> data);
+  void subnegotiate(int option, List<int> data);
 }
 
 class CTelnetClient implements ITelnetClient {
@@ -60,6 +60,7 @@ class CTelnetClient implements ITelnetClient {
   final ErrorCallback onError;
   late RawSocket _socket;
   late ConnectionTask<RawSocket> _task;
+  late Timer? _timeoutTask;
   @override
   ConnectionStatus status = ConnectionStatus.disconnected;
   bool get connected => status == ConnectionStatus.connected;
@@ -78,7 +79,7 @@ class CTelnetClient implements ITelnetClient {
       _subscription = _socket.listen(
         _onData,
         onError: _onError,
-        onDone: _onDone,
+        onDone: _onDisconnect,
       );
     } catch (e) {
       onError(e.toString());
@@ -97,44 +98,49 @@ class CTelnetClient implements ITelnetClient {
 
   @override
   Future<RawSocket> disconnect() async {
-    return _socket.close();
+    _onDisconnect();
+    return _socket;
   }
 
   @override
-  subnegotiate(int option, List<int> data) {
+  void subnegotiate(int option, List<int> data) {
     sendBytes(
         [Symbols.iac, Symbols.sb, option, ...data, Symbols.iac, Symbols.se]);
   }
 
   @override
-  dont(int option) {
+  void dont(int option) {
     sendBytes([Symbols.iac, Symbols.dont, option]);
   }
 
   @override
-  doo(int option) {
+  void doo(int option) {
     sendBytes([Symbols.iac, Symbols.doo, option]);
   }
 
   @override
-  will(int option) {
+  void will(int option) {
     sendBytes([Symbols.iac, Symbols.will, option]);
   }
 
   @override
-  wont(int option) {
+  void wont(int option) {
     sendBytes([Symbols.iac, Symbols.wont, option]);
   }
 
   Future<void> _startTimeout() async {
-    await Future.delayed(timeout);
-    if (!connected) {
-      _dispose();
-      _onError(
+    _timeoutTask = Timer(timeout, () {
+      if (!connected) {
+        _dispose();
+        _onError(
           TimeoutException(
-              'Timeout for connection to $host:$port exceeded', timeout),
-          StackTrace.current);
-    }
+            'Timeout for connection to $host:$port exceeded',
+            timeout,
+          ),
+          StackTrace.current,
+        );
+      }
+    });
   }
 
   void _onData(RawSocketEvent event) {
@@ -151,10 +157,15 @@ class CTelnetClient implements ITelnetClient {
         }
         break;
       case RawSocketEvent.write:
+        print('CTelnetClient: Socket write');
         break;
       case RawSocketEvent.readClosed:
+        print('CTelnetClient: Socket read closed');
+        _onDisconnect();
         break;
       case RawSocketEvent.closed:
+        print('CTelnetClient: Socket closed');
+        _onDisconnect();
         break;
     }
   }
@@ -163,16 +174,17 @@ class CTelnetClient implements ITelnetClient {
     onError(error.toString());
   }
 
-  void _onDone() {
+  void _onDisconnect() {
     status = ConnectionStatus.disconnected;
+    _dispose();
     onDisconnect();
-    _subscription?.cancel();
-    _task.cancel();
   }
 
   void _dispose() {
     _subscription?.cancel();
+    _socket.close();
     _task.cancel();
+    _timeoutTask?.cancel();
   }
 }
 

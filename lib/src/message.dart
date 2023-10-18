@@ -37,13 +37,23 @@ class Message {
   bool se() => commands.any((element) => element[0] == Symbols.se);
 
   /// Returns the subnegotiation data for the given option
-  List<int> subnegotiation(int option) {
+  /// Returns only the inner data, not the surrounding IAC SB and IAC SE
+  /// If the data is not found or is not properly formatted (does not end with
+  /// SE or is too short), returns null
+  List<int>? subnegotiation(int option) {
     final subnegotiations = commands
         .where((element) => element[0] == Symbols.sb && element[1] == option);
     if (subnegotiations.isEmpty) {
-      return [];
+      return null;
     }
-    return subnegotiations.first.sublist(2, subnegotiations.first.length - 2);
+    final sub = subnegotiations.first;
+    if (sub.length < 3) {
+      return null;
+    }
+    if (sub.last != Symbols.se) {
+      return null;
+    }
+    return sub.sublist(2, subnegotiations.first.length - 2);
   }
 
   /// Returns true if the message has any commands
@@ -52,7 +62,7 @@ class Message {
   /// Returns true if the message has any text
   bool get isText => text.isNotEmpty;
 
-  /// Returns true if the message has any data
+  /// Returns true if the message has no data
   bool get isEmpty => !isCommand && !isText;
 
   /// Returns true if the message has any data
@@ -87,3 +97,4 @@ class Message {
     return false;
   }
 }
+

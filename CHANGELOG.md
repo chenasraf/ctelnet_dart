@@ -1,3 +1,8 @@
+## 0.1.5
+
+- Improve data subnegotiation handling
+- Add `MessageBuilder` class
+
 ## 0.1.4
 
 - Add connection state properties
