@@ -33,6 +33,7 @@ class MessageBuilder {
 
   /// Returns `true` if the message is empty.
   bool get isEmpty => bytes.isEmpty;
+
   /// Returns `true` if the message is not empty.
   bool get isNotEmpty => bytes.isNotEmpty;
 
@@ -44,7 +45,8 @@ class MessageBuilder {
 
   /// Adds a subnegotiation to the message.
   MessageBuilder addSubnegotiation(int option, List<int> data) {
-    bytes.addAll([Symbols.iac, Symbols.sb, option, ...data, Symbols.iac, Symbols.se]);
+    bytes.addAll(
+        [Symbols.iac, Symbols.sb, option, ...data, Symbols.iac, Symbols.se]);
     return this;
   }
 

@@ -97,4 +97,3 @@ class Message {
     return false;
   }
 }
-
