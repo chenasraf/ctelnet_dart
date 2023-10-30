@@ -71,7 +71,7 @@ void sendExamples() {
   client.sendBytes([Symbols.iac, Symbols.sb] + 'Hello, world!'.codeUnits);
 
   // Send commands
-  client.doo(MCCP2);
+  client.doo(Symbols.compression2);
 }
 ```
 
@@ -82,15 +82,14 @@ You can see more methods in the documentation for the `CTelnetClient` object.
 You can also use parsed or raw information for received `Message` objects.
 
 ```dart
-const MCCP2 = 86;
 bool isEncrypted = false;
 
 void handleMessage(Message msg) {
-  if (msg.will(MCCP2)) {
-    client.doo(MCCP2)
+  if (msg.will(Symbols.compression2)) {
+    client.doo(Symbols.compression2)
   }
 
-  if (msg.sb(MCCP2)) {
+  if (msg.sb(Symbols.compression2)) {
     isEncrypted = true;
     /// proceed to process data
   }

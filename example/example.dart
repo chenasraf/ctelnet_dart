@@ -18,7 +18,7 @@ void main(List<String> args) async {
     onData: (data) {
       print('DBG:        ${data.toDebugString()}');
       print('toString(): ${data.toString()}');
-      print('.text:      ${data.text}');
+      print('text:      ${data.text}');
       print('');
     },
     onError: (error) => print('Error: $error'),
@@ -28,9 +28,7 @@ void main(List<String> args) async {
 
   client.send('Hello, world!');
 
-  // ignore: constant_identifier_names
-  const MCCP2 = 86;
-  client.doo(MCCP2);
+  client.doo(Symbols.compression2);
 
   // await client.disconnect();
 }

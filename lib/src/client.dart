@@ -22,7 +22,7 @@ abstract class ITelnetClient {
   int sendBytes(List<int> bytes);
 
   /// Disconnect from the server.
-  Future<RawSocket> disconnect();
+  Future<RawSocket?> disconnect();
 
   /// Send a WILL command to the server.
   void will(int option);
@@ -58,12 +58,13 @@ class CTelnetClient implements ITelnetClient {
   final ConnectionCallback onDisconnect;
   final DataCallback onData;
   final ErrorCallback onError;
-  late RawSocket _socket;
-  late ConnectionTask<RawSocket> _task;
-  late Timer? _timeoutTask;
+  RawSocket? _socket;
+  ConnectionTask<RawSocket>? _task;
+  Timer? _timeoutTask;
+  bool _disposed = false;
   @override
   ConnectionStatus status = ConnectionStatus.disconnected;
-  bool get connected => status == ConnectionStatus.connected;
+  bool get connected => _socket != null && status == ConnectionStatus.connected;
 
   StreamSubscription<RawSocketEvent>? _subscription;
 
@@ -76,28 +77,40 @@ class CTelnetClient implements ITelnetClient {
       _task = task;
       _startTimeout();
       _socket = await task.socket;
-      _subscription = _socket.listen(
+      _assertSocket('Socket initialization failed');
+      _subscription = _socket!.listen(
         _onData,
         onError: _onError,
         onDone: _onDisconnect,
       );
-    } catch (e) {
-      onError(e.toString());
+    } catch (e, stack) {
+      if (!_disposed) {
+        _dispose();
+        _onError(e, stack);
+      }
+    }
+  }
+
+  _assertSocket([String? message]) {
+    if (_socket == null) {
+      throw Exception(message ?? 'Socket is not available');
     }
   }
 
   @override
   int send(String data) {
-    return _socket.write(Uint8List.fromList(data.codeUnits));
+    _assertSocket();
+    return _socket!.write(Uint8List.fromList(data.codeUnits));
   }
 
   @override
   int sendBytes(List<int> bytes) {
-    return _socket.write(Uint8List.fromList(bytes));
+    _assertSocket();
+    return _socket!.write(Uint8List.fromList(bytes));
   }
 
   @override
-  Future<RawSocket> disconnect() async {
+  Future<RawSocket?> disconnect() async {
     _onDisconnect();
     return _socket;
   }
@@ -130,7 +143,7 @@ class CTelnetClient implements ITelnetClient {
 
   Future<void> _startTimeout() async {
     _timeoutTask = Timer(timeout, () {
-      if (!connected) {
+      if (status == ConnectionStatus.connecting) {
         _dispose();
         _onError(
           TimeoutException(
@@ -150,28 +163,25 @@ class CTelnetClient implements ITelnetClient {
     }
     switch (event) {
       case RawSocketEvent.read:
-        final data = _socket.read();
+        final data = _socket!.read();
         if (data != null) {
           final msg = Message(data);
           onData(msg);
         }
         break;
       case RawSocketEvent.write:
-        print('CTelnetClient: Socket write');
         break;
       case RawSocketEvent.readClosed:
-        print('CTelnetClient: Socket read closed');
         _onDisconnect();
         break;
       case RawSocketEvent.closed:
-        print('CTelnetClient: Socket closed');
         _onDisconnect();
         break;
     }
   }
 
   void _onError(error, StackTrace stackTrace) {
-    onError(error.toString());
+    onError(error);
   }
 
   void _onDisconnect() {
@@ -181,10 +191,16 @@ class CTelnetClient implements ITelnetClient {
   }
 
   void _dispose() {
+    status = ConnectionStatus.disconnected;
     _subscription?.cancel();
-    _socket.close();
-    _task.cancel();
+    _subscription = null;
+    _socket?.close();
+    _socket = null;
+    _task?.cancel();
+    _task = null;
     _timeoutTask?.cancel();
+    _timeoutTask = null;
+    _disposed = true;
   }
 }
 
@@ -198,3 +214,4 @@ enum ConnectionStatus {
   /// The client is not connected to the server.
   disconnected,
 }
+
