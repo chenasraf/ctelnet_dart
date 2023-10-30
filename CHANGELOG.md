@@ -1,6 +1,6 @@
 ## 0.1.6
 
-- Fix: timeout unhandled exception (#1)(https://github.com/chenasraf/ctelnet_dart/issues/1)
+- Fix: timeout unhandled exception [#1](https://github.com/chenasraf/ctelnet_dart/issues/1)
 - Add tests
 
 ## 0.1.5
