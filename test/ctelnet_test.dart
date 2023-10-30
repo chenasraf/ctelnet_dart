@@ -75,4 +75,3 @@ void main() {
     expect(client.status, equals(ConnectionStatus.disconnected));
   });
 }
-
