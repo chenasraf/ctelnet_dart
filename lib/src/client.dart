@@ -13,7 +13,7 @@ abstract class ITelnetClient {
   ConnectionStatus status = ConnectionStatus.disconnected;
 
   /// Connect to the server.
-  Future<void> connect();
+  Future<Stream<Message>?> connect();
 
   /// Send data to the server.
   int send(String data);
@@ -47,7 +47,6 @@ class CTelnetClient implements ITelnetClient {
     this.timeout = const Duration(seconds: 30),
     required this.onConnect,
     required this.onDisconnect,
-    required this.onData,
     required this.onError,
   });
 
@@ -56,7 +55,6 @@ class CTelnetClient implements ITelnetClient {
   final Duration timeout;
   final ConnectionCallback onConnect;
   final ConnectionCallback onDisconnect;
-  final DataCallback onData;
   final ErrorCallback onError;
   RawSocket? _socket;
   ConnectionTask<RawSocket>? _task;
@@ -67,10 +65,13 @@ class CTelnetClient implements ITelnetClient {
   bool get connected => _socket != null && status == ConnectionStatus.connected;
 
   StreamSubscription<RawSocketEvent>? _subscription;
+  StreamController<Message>? _controller;
 
   /// Connect to the host and port.
+  ///
+  /// Returns a [Stream] to listen for [Message]s if the connection is successful.
   @override
-  Future<void> connect() async {
+  Future<Stream<Message>?> connect() async {
     try {
       status = ConnectionStatus.connecting;
       final task = await RawSocket.startConnect(host, port);
@@ -83,12 +84,16 @@ class CTelnetClient implements ITelnetClient {
         onError: _onError,
         onDone: _onDisconnect,
       );
+      _controller?.close();
+      _controller = StreamController<Message>();
+      return _controller!.stream;
     } catch (e, stack) {
       if (!_disposed) {
         _dispose();
         _onError(e, stack);
       }
     }
+    return null;
   }
 
   _assertSocket([String? message]) {
@@ -166,7 +171,7 @@ class CTelnetClient implements ITelnetClient {
         final data = _socket!.read();
         if (data != null) {
           final msg = Message(data);
-          onData(msg);
+          _controller!.add(msg);
         }
         break;
       case RawSocketEvent.write:
@@ -200,6 +205,8 @@ class CTelnetClient implements ITelnetClient {
     _task = null;
     _timeoutTask?.cancel();
     _timeoutTask = null;
+    _controller?.close();
+    _controller = null;
     _disposed = true;
   }
 }
@@ -214,3 +221,4 @@ enum ConnectionStatus {
   /// The client is not connected to the server.
   disconnected,
 }
+

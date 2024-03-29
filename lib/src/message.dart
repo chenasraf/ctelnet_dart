@@ -1,3 +1,4 @@
+import 'color_parser/parser.dart';
 import 'consts.dart';
 import 'parser.dart';
 import 'symbols.dart';
@@ -6,11 +7,13 @@ class Message {
   final List<int> bytes;
   late final String text;
   late final List<List<int>> commands;
+  late final List<ColorToken> coloredText;
 
   Message(this.bytes) {
-    final parser = MessageParser(bytes).parse();
-    commands = parser.commands;
-    text = parser.text;
+    final stringParser = MessageParser(bytes).parse();
+    commands = stringParser.commands;
+    text = stringParser.text;
+    coloredText = ColorParser(text).parse();
   }
 
   /// Returns true if the message contains the given WILL command
