@@ -2,13 +2,31 @@ import 'base.dart';
 import 'reader.dart';
 import '../consts.dart' as consts;
 
+/// Represents a string value with color information.
+///
+/// Can be used to store the text and color information for a single token.
+///
+/// Use [formatted] to get the ANSI formatted text, usable in a terminal.
 class ColorToken {
+  /// The raw, uncoded text.
   String text;
+
+  /// The foreground color code.
   int fgColor;
+
+  /// The background color code.
   int bgColor;
+
+  /// Whether the text is bold.
   bool bold;
+
+  /// Whether the text is italic.
   bool italic;
+
+  /// Whether the text is underlined.
   bool underline;
+
+  /// Whether the text is an xterm256 color code. Otherwise, it is a standard color code.
   bool xterm256;
 
   ColorToken({
@@ -21,14 +39,25 @@ class ColorToken {
     this.xterm256 = false,
   });
 
+  /// Create an empty token.
   factory ColorToken.empty() => ColorToken(text: '', fgColor: 0, bgColor: 0);
+
+  /// Create a token with default color and the given text.
   factory ColorToken.defaultColor(String text) =>
       ColorToken(text: text, fgColor: 0, bgColor: 0);
 
+  /// Returns true if the text is empty.
   bool get isEmpty => text.isEmpty;
+
+  /// Returns true if the text is not empty.
   bool get isNotEmpty => !isEmpty;
 
-  /// get the formatted text as ANSI
+  /// Get the formatted text as ANSI formatted text.
+  ///
+  /// Outputting this value to a terminal will display the text with the correct colors.
+  ///
+  /// To format the text in other ways, use the properties to get the [fgColor] and [bgColor],
+  /// and construct it to whatever format you need.
   String get formatted => bgColor == 0
       ? '\x1B[${fgColor}m$text\x1B[0m'
       : '\x1B[$fgColor;${bgColor}m$text\x1B[0m';
@@ -55,6 +84,7 @@ class ColorToken {
           fgColor == other.fgColor &&
           bgColor == other.bgColor;
 
+  /// Set the style based on the given code.
   void setStyle(int code) {
     // debugPrint('setStyle: $code');
     if (code == consts.boldByte) {
@@ -67,6 +97,7 @@ class ColorToken {
   }
 }
 
+/// A parser to parse a string with color codes.
 class ColorParser implements IReader {
   final IReader reader;
   final _tokens = <TokenValue>[];
@@ -75,17 +106,23 @@ class ColorParser implements IReader {
 
   factory ColorParser(String text) => ColorParser._(StringReader(text));
 
+  /// Parse the text and return a list of [ColorToken]s.
+  ///
+  /// Each token represents a piece of text with color information. You can join all the text
+  /// together (without separators) to get the original text, uncolored.
+  ///
+  /// To get the colored text, use the [formatted] property of each token.
   List<ColorToken> parse() {
     final lexed = <ColorToken>[];
     while (!reader.isDone) {
       final token = reader.read();
-      var cur = getToken(token);
+      var cur = _getToken(token);
       lexed.add(cur);
     }
     return lexed;
   }
 
-  ColorToken getToken(String char) {
+  ColorToken _getToken(String char) {
     var token = ColorToken.empty();
     switch (char) {
       case consts.esc:
@@ -98,7 +135,7 @@ class ColorParser implements IReader {
           }
           reader.read();
           if (next == '[') {
-            final color = consumeUntil('m');
+            final color = _consumeUntil('m');
             reader.read();
             final colors = color.split(';');
             final first = int.tryParse(colors[0]) ?? 0;
@@ -150,7 +187,7 @@ class ColorParser implements IReader {
             //     token.fgColor = int.tryParse(colors[1]) ?? 0;
             //   }
             // }
-            token.text = consumeUntil(consts.esc);
+            token.text = _consumeUntil(consts.esc);
             return token;
           }
           if (next == null) {
@@ -165,7 +202,7 @@ class ColorParser implements IReader {
     }
   }
 
-  String consumeUntil(String char) {
+  String _consumeUntil(String char) {
     String? next = reader.peek();
     if (next == null) {
       return '';
