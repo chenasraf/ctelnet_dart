@@ -4,9 +4,19 @@ import 'parser.dart';
 import 'symbols.dart';
 
 class Message {
+  /// The raw bytes of the message
   final List<int> bytes;
+
+  /// The plaintext section of the message
   late final String text;
+
+  /// The list of command bytes in the message
   late final List<List<int>> commands;
+
+  /// The list of color tokens in the message. Each token contains the original text
+  /// and color information
+  ///
+  /// See [ColorToken] for more information
   late final List<ColorToken> coloredText;
 
   Message(this.bytes) {
@@ -76,10 +86,13 @@ class Message {
     return toDebugString();
   }
 
+  /// Used for debugging - returns the message as a string with all commands in a human
+  /// readable format followed by a newline, then the text
   String toDebugString() {
     return '${commands.map((e) => e.map((x) => symbolMap[x] ?? x)).join(' ')}$lf$text';
   }
 
+  /// Get the index of the first byte that is not part of a command
   int get firstLiteralByteIndex {
     if (bytes.isEmpty) {
       return 0;

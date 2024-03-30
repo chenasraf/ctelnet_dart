@@ -112,9 +112,9 @@ inside a message object using the `coloredText` property:
 ```dart
 void handleMessage(Message msg) {
   for (final segment in msg.coloredText) {
-    print('Uncolored: ${msg.text}');
-    print('Foreground: ${msg.fgColor}');
-    print('Background: ${msg.bgColor}');
+    print('Uncolored: ${segment.text}');
+    print('Foreground: ${segment.fgColor}');
+    print('Background: ${segment.bgColor}');
     print('Colored for terminal: ${segment.formatted}');
   }
 }
