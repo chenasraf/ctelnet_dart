@@ -15,20 +15,32 @@ void main(List<String> args) async {
     timeout: Duration(seconds: 30),
     onConnect: () => print('Connected'),
     onDisconnect: () => print('Disconnected'),
-    onData: (data) {
-      print('DBG:        ${data.toDebugString()}');
-      print('toString(): ${data.toString()}');
-      print('text:      ${data.text}');
-      print('');
-    },
     onError: (error) => print('Error: $error'),
   );
 
-  await client.connect();
+  final sub = await client.connect();
 
+  if (sub == null) {
+    throw Exception('Failed to connect');
+  }
+
+  // listen to the stream of messages
+  sub.listen((data) {
+    print('Message received!');
+    print('text:      ${data.text}');
+    print('Debug:     ${data.toDebugString()}');
+    print('Colored: ${data.coloredText.map((t) => t.formatted).join('')}');
+    print('');
+  });
+
+  // send a message
   client.send('Hello, world!');
 
+  // send a command
   client.doo(Symbols.compression2);
 
-  // await client.disconnect();
+  await Future.delayed(Duration(seconds: 5));
+
+  await client.disconnect();
 }
+

@@ -1,6 +1,3 @@
 scripts:
   - name: mud-test
-    cmd: HOST=aardmud.net PORT=6555 dart example/ctelnet_example.dart
-    env:
-      HOST: aardmud.net
-      PORT: 6555
+    cmd: HOST=smud.ourmmo.com PORT=3000 dart example/example.dart

@@ -7,26 +7,32 @@ import 'package:test/test.dart';
 final host = InternetAddress.anyIPv4;
 final port = 5555;
 ServerSocket? server;
-Future<StreamSubscription<Socket>> startServer() async {
+Future<StreamSubscription<Socket>> startServer({bool verbose = false}) async {
+  void d(Object msg) {
+    if (verbose) {
+      print(msg);
+    }
+  }
+
   Future<ServerSocket> serverFuture = ServerSocket.bind(host, port);
   final timeout = Duration(seconds: 1);
   await Future.delayed(timeout);
-  print('Server init on $host:$port');
+  d('Server init on $host:$port');
   server = await serverFuture;
-  print('Server started on ${server!.address.address}:${server!.port}');
+  d('Server started on ${server!.address.address}:${server!.port}');
   return server!.listen(
     (Socket socket) {
-      print('Listening on ${socket.remoteAddress.address}:${socket.port}');
+      d('Listening on ${socket.remoteAddress.address}:${socket.port}');
       socket.listen((List<int> data) {
         String result = String.fromCharCodes(data);
         socket.write(result);
       });
     },
     onError: (e) {
-      print('Server error: $e');
+      d('Server error: $e');
     },
     onDone: () {
-      print('Server done');
+      d('Server done');
     },
     cancelOnError: true,
   );
@@ -42,7 +48,6 @@ void main() {
       onError: (e) {
         expect(e, isA<TimeoutException>());
       },
-      onData: (d) {},
       onConnect: () {},
       onDisconnect: () {},
     );
@@ -60,7 +65,6 @@ void main() {
       port: port,
       timeout: Duration(seconds: 1),
       onError: (e) {},
-      onData: (d) {},
       onConnect: () async {
         expect(client!.status, equals(ConnectionStatus.connected));
       },
@@ -75,3 +79,4 @@ void main() {
     expect(client.status, equals(ConnectionStatus.disconnected));
   });
 }
+
