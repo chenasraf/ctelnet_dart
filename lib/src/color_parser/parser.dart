@@ -6,7 +6,7 @@ import '../consts.dart' as consts;
 ///
 /// Can be used to store the text and color information for a single token.
 ///
-/// Use [formatted] to get the ANSI formatted text, usable in a terminal.
+/// Use [ColorToken.formatted] to get the ANSI formatted text, usable in a terminal.
 class ColorToken {
   /// The raw, uncoded text.
   String text;
@@ -111,7 +111,7 @@ class ColorParser implements IReader {
   /// Each token represents a piece of text with color information. You can join all the text
   /// together (without separators) to get the original text, uncolored.
   ///
-  /// To get the colored text, use the [formatted] property of each token.
+  /// To get the colored text, use the [ColorToken.formatted] property of each token.
   List<ColorToken> parse() {
     final lexed = <ColorToken>[];
     while (!reader.isDone) {
@@ -262,4 +262,3 @@ class ColorParser implements IReader {
   @override
   setPosition(int position) => index = position;
 }
-

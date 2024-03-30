@@ -221,4 +221,3 @@ enum ConnectionStatus {
   /// The client is not connected to the server.
   disconnected,
 }
-

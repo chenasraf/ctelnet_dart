@@ -8,3 +8,6 @@ pubspec.lock
 
 # secrets
 .env
+
+# docs
+doc/
