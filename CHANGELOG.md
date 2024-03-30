@@ -1,3 +1,7 @@
+## 0.2.0
+
+- Add built-in color parser
+
 ## 0.1.6
 
 - Fix: timeout unhandled exception [#1](https://github.com/chenasraf/ctelnet_dart/issues/1)

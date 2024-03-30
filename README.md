@@ -42,11 +42,11 @@ Future<void> connect(String host, int port) {
     timeout: Duration(seconds: 30),
     onConnect: () => print('Connected'),
     onDisconnect: () => print('Disconnected'),
-    onData: (data) => print('Data received: ${data.text}'),
     onError: (error) => print('Error: $error'),
   );
 
-  await client.connect();
+  final stream = await client.connect();
+  final subscription = stream.listen((data) => print('Data received: ${data.text}'));
 }
 ```
 
@@ -82,6 +82,9 @@ You can see more methods in the documentation for the `CTelnetClient` object.
 You can also use parsed or raw information for received `Message` objects.
 
 ```dart
+final stream = await client.connect();
+final subscription = stream.listen(handleMessage);
+
 bool isEncrypted = false;
 
 void handleMessage(Message msg) {
@@ -100,6 +103,22 @@ void handleMessage(Message msg) {
 ```
 
 You can see more methods in the documentation for the `Message` object.
+
+### Using ANSI/xterm colors
+
+CTelnet comes with a built-in ANSI/xterm color parser. You can get the list of colored segments
+inside a message object using the `coloredText` property:
+
+```dart
+void handleMessage(Message msg) {
+  for (final segment in msg.coloredText) {
+    print('Uncolored: ${msg.text}');
+    print('Foreground: ${msg.fgColor}');
+    print('Background: ${msg.bgColor}');
+    print('Colored for terminal: ${segment.formatted}');
+  }
+}
+```
 
 ## Contributing
 
