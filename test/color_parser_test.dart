@@ -11,13 +11,19 @@ const inputs = [
 
 void main() {
   group('ColorParser', () {
-    test('colored output 1', () {
+    test('parse colors - simple', () {
       final input = inputs[0];
       final output = ColorParser(input).parse();
       expect(output, [
         ColorToken(text: 'You are standing in a small clearing.', fgColor: 32, bgColor: 0),
         ColorToken.empty(),
       ]);
+    });
+
+    test('formatted', () {
+      final input = inputs[0];
+      final output = ColorParser(input).parse();
+      expect(output[0].formatted, inputs[0]);
     });
   });
 }
