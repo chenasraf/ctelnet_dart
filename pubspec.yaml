@@ -7,7 +7,7 @@ environment:
   sdk: ^3.1.2
 
 dependencies:
-  terminal_color_parser: any
+  terminal_color_parser: ^0.5.0
   # terminal_color_parser:
   #   path: ../terminal_color_parser
 
