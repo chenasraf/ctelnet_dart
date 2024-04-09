@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Extract color parser to package
+
 ## 0.2.0
 
 - Add built-in color parser

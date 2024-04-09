@@ -1,6 +1,6 @@
 name: ctelnet
 description: A simple Telnet client for Dart/Flutter, parse incoming and outgoing data easily and quickly.
-version: 0.2.0
+version: 0.3.0
 repository: https://github.com/chenasraf/ctelnet_dart
 
 environment:
