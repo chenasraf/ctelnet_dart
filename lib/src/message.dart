@@ -1,4 +1,5 @@
-import 'color_parser/parser.dart';
+import 'package:terminal_color_parser/terminal_color_parser.dart';
+
 import 'consts.dart';
 import 'parser.dart';
 import 'symbols.dart';
